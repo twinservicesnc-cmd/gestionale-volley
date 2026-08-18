@@ -542,9 +542,21 @@ elif pagina_scelta == "Area Promozionale":
     for i, g_nome in enumerate(gruppi_prom):
         with tab_gp[i]:
             st.subheader(f"Roster Gruppo: {g_nome}")
-            # Filtriamo le atlete con la funzione di controllo esistente
-        atlete_scadute = [a for a in atlete_g if "SCADUTA" in controlla_visita(a.get("scad_visita", ""))]
-        atlete_in_scadenza = [a for a in atlete_g if "IN SCADENZA" in controlla_visita(a.get("scad_visita", ""))]
+           # Filtriamo le atlete in base alla data della visita medica
+        oggi = datetime.now()
+        atlete_scadute = []
+        atlete_in_scadenza = []
+        
+        for a in atlete_g:
+            data_str = a.get("scad_visita", "")
+            try:
+                data_visita = datetime.strptime(str(data_str).strip(), "%d/%m/%Y")
+                if data_visita < oggi:
+                    atlete_scadute.append(a)
+                elif (data_visita - oggi).days < 30:
+                    atlete_in_scadenza.append(a)
+            except:
+                pass
 
         # Creiamo i pulsanti di download affiancati
         col_dl1, col_dl2 = st.columns(2)
@@ -557,6 +569,16 @@ elif pagina_scelta == "Area Promozionale":
                     file_name=f"visite_scadute_{g_nome}.csv",
                     mime="text/csv",
                     key=f"dl_scad_{i}"
+                )
+        with col_dl2:
+            if atlete_in_scadenza:
+                df_in_scad = pd.DataFrame(atlete_in_scadenza)
+                st.download_button(
+                    label=f"📥 Scarica IN SCADENZA ({g_nome})",
+                    data=df_in_scad.to_csv(index=False).encode('utf-8'),
+                    file_name=f"visite_in_scadenza_{g_nome}.csv",
+                    mime="text/csv",
+                    key=f"dl_prox_{i}"
                 )
         with col_dl2:
             if atlete_in_scadenza:
