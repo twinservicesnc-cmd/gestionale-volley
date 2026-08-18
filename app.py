@@ -583,8 +583,6 @@ elif pagina_scelta == "Area Promozionale":
         with col_rt2:
             nomi_atlete_g = ["Tutti"] + [f"{a['cognome']} {a['nome']}" for a in atlete_g]
             sel_atleta_tendina = st.selectbox(f"Seleziona atleta a tendina ({g_nome}):", nomi_atlete_g, key=f"sel_tend_prom_{g_nome}")
-                nomi_atlete_g = ["Tutti"] + [f"{a['cognome']} {a['nome']}" for a in atlete_g]
-                sel_atleta_tendina = st.selectbox(f"Seleziona atleta a tendina ({g_nome}):", nomi_atlete_g, key=f"sel_tend_prom_{g_nome}")
             
             if sel_atleta_tendina != "Tutti":
                 c_c, c_n = sel_atleta_tendina.split(" ", 1)
