@@ -563,7 +563,6 @@ elif pagina_scelta == "Area Promozionale":
             st.write(f"**Visite Scadute ({len(atlete_scadute)}):**")
             c1, c2 = st.columns(2)
             with c1:
-                with c1:
                 st.download_button("📥 Scarica SCADUTE (.csv)", df_scadute.to_csv(index=False), f"scadute_{g_nome}.csv", "text/csv", key=f"csv_scad_{g_nome}")
             with c2:
                 st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scadute), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_scad_{g_nome}")
