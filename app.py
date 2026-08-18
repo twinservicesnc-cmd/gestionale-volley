@@ -576,10 +576,10 @@ elif pagina_scelta == "Area Promozionale":
             with c4:
                 st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_in_scad), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_prox_{g_nome}")
             with col_rt1:
-                q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{i}")
+                q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{g_nome}")
             with col_rt2:
                 nomi_atlete_g = ["Tutti"] + [f"{a['cognome']} {a['nome']}" for a in atlete_g]
-                sel_atleta_tendina = st.selectbox(f"Seleziona atleta a tendina ({g_nome}):", nomi_atlete_g, key=f"sel_tend_prom_{i}")
+                sel_atleta_tendina = st.selectbox(f"Seleziona atleta a tendina ({g_nome}):", nomi_atlete_g, key=f"sel_tend_prom_{g_nome}")
             
             if sel_atleta_tendina != "Tutti":
                 c_c, c_n = sel_atleta_tendina.split(" ", 1)
