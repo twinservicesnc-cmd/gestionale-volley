@@ -545,44 +545,36 @@ elif pagina_scelta == "Area Promozionale":
            
                 
             atlete_g = [a for a in atlete_stagione_attiva if a.get("cognome") != "--- Inizializzazione" and (a.get("gruppo", "").lower() == g_nome.lower() or a.get("gruppo2", "").lower() == g_nome.lower())]
-            # Filtriamo le atlete in base alla data della visita medica
+           # Filtriamo le atlete (stessa logica di prima)
         oggi = datetime.now()
-        atlete_scadute = []
-        atlete_in_scadenza = []
-        
-        for a in atlete_g:
-            data_str = a.get("scad_visita", "")
-            try:
-                data_visita = datetime.strptime(str(data_str).strip(), "%d/%m/%Y")
-                if data_visita < oggi:
-                    atlete_scadute.append(a)
-                elif (data_visita - oggi).days < 30:
-                    atlete_in_scadenza.append(a)
-            except:
-                pass
+        atlete_scadute = [a for a in atlete_g if str(a.get("scad_visita", "")).strip() and datetime.strptime(str(a.get("scad_visita", "")).strip(), "%d/%m/%Y") < oggi]
+        atlete_in_scadenza = [a for a in atlete_g if str(a.get("scad_visita", "")).strip() and 0 <= (datetime.strptime(str(a.get("scad_visita", "")).strip(), "%d/%m/%Y") - oggi).days <= 30]
 
-        # Creiamo i pulsanti di download affiancati
-        col_dl1, col_dl2 = st.columns(2)
-        with col_dl1:
-            if atlete_scadute:
-                df_scadute = pd.DataFrame(atlete_scadute)
-                st.download_button(
-                    label=f"📥 Scarica SCADUTE ({g_nome})",
-                    data=df_scadute.to_csv(index=False).encode('utf-8'),
-                    file_name=f"visite_scadute_{g_nome}.csv",
-                    mime="text/csv",
-                    key=f"dl_scad_{i}"
-                )
-        with col_dl2:
-            if atlete_in_scadenza:
-                df_in_scad = pd.DataFrame(atlete_in_scadenza)
-                st.download_button(
-                    label=f"📥 Scarica IN SCADENZA ({g_nome})",
-                    data=df_in_scad.to_csv(index=False).encode('utf-8'),
-                    file_name=f"visite_in_scadenza_{g_nome}.csv",
-                    mime="text/csv",
-                    key=f"dl_prox_{i}"
-                )
+        # Creiamo un buffer per Excel
+        def to_excel(df):
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False, sheet_name='Lista')
+            return output.getvalue()
+
+        # Pulsanti download (CSV + Excel)
+        if atlete_scadute:
+            df_scadute = pd.DataFrame(atlete_scadute)
+            st.write(f"**Visite Scadute ({len(atlete_scadute)}):**")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.download_button("📥 Scarica SCADUTE (.csv)", df_scadute.to_csv(index=False), f"scadute_{g_nome}.csv", "text/csv")
+            with c2:
+                st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scadute), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+        if atlete_in_scadenza:
+            df_in_scad = pd.DataFrame(atlete_in_scadenza)
+            st.write(f"**In Scadenza nei prossimi 30gg ({len(atlete_in_scadenza)}):**")
+            c3, c4 = st.columns(2)
+            with c3:
+                st.download_button("📥 Scarica IN SCADENZA (.csv)", df_in_scad.to_csv(index=False), f"in_scadenza_{g_nome}.csv", "text/csv")
+            with c4:
+                st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_in_scad), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             col_rt1, col_rt2 = st.columns(2)
             with col_rt1:
                 q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{i}")
