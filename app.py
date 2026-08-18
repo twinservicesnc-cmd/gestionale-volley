@@ -544,20 +544,14 @@ elif pagina_scelta == "Area Promozionale":
             st.subheader(f"Roster Gruppo: {g_nome}")
            
                 
-            atlete_g = [a for a in atleta_stagione_attiva if a.get("cognome") != "--- Inizializzazione" and (str(a.get("gruppo_squadra", "")).lower() == g_nome.lower() or str(a.get("gruppo", "")).lower() == g_nome.lower() or str(a.get("gruppo2", "")).lower() == g_nome.lower())]
+           # 1. Filtro atlete del gruppo
+    atlete_g = [a for a in atleta_stagione_attiva if a.get("cognome") != "--- Inizializzazione" and (str(a.get("gruppo_squadra", "")).lower() == g_nome.lower() or str(a.get("gruppo", "")).lower() == g_nome.lower() or str(a.get("gruppo2", "")).lower() == g_nome.lower())]
     
     oggi = datetime.now().date()
     atlete_scadute = [a for a in atlete_g if str(a.get("scad_visa", "")).strip() and datetime.strptime(str(a.get("scad_visa", "")).strip(), "%d/%m/%Y").date() < oggi]
     atlete_in_scadenza = [a for a in atlete_g if str(a.get("scad_visa", "")).strip() and 0 <= (datetime.strptime(str(a.get("scad_visa", "")).strip(), "%d/%m/%Y").date() - oggi).days <= 30]
 
-        # Creiamo un buffer per Excel
-        def to_excel(df):
-            output = io.BytesIO()
-            with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                df.to_excel(writer, index=False, sheet_name='Lista')
-            return output.getvalue()
-
-        # 1. Visite Scadute
+    # 2. Visite Scadute
     st.write(f"**Visite Scadute ({len(atlete_scadute)}):**")
     df_scad = pd.DataFrame(atlete_scadute)
     c1, c2 = st.columns(2)
@@ -567,7 +561,7 @@ elif pagina_scelta == "Area Promozionale":
         st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scad), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_scad_{g_nome}")
     st.dataframe(df_scad, use_container_width=True)
 
-    # 2. In Scadenza nei prossimi 30gg
+    # 3. In Scadenza nei prossimi 30gg
     st.write(f"**In Scadenza nei prossimi 30gg ({len(atlete_in_scadenza)}):**")
     df_prox = pd.DataFrame(atlete_in_scadenza)
     c3, c4 = st.columns(2)
@@ -577,17 +571,19 @@ elif pagina_scelta == "Area Promozionale":
         st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_prox), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_prox_{g_nome}")
     st.dataframe(df_prox, use_container_width=True)
 
+    # 4. Filtri di ricerca
     col_rt1, col_rt2 = st.columns(2)
     with col_rt1:
         q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{g_nome}")
     with col_rt2:
         nomi_atlete_g = ["Tutti"] + [f"{a['cognome']} {a['nome']}" for a in atlete_g]
         sel_atleta_tendina = st.selectbox(f"Seleziona atleta a tendina ({g_nome}):", nomi_atlete_g, key=f"sel_tend_prom_{g_nome}")
-        if sel_atleta_tendina != "Tutti":
-            c_c, c_n = sel_atleta_tendina.split(" ", 1)
-            atlete_g = [a for a in atlete_g if a.get("cognome") == c_c and a.get("nome") == c_n]
-        elif q_prom:
-            atlete_g = [a for a in atlete_g if q_prom.lower() in a.get("cognome", "").lower() or q_prom.lower() in a.get("nome", "").lower()]
+
+    if sel_atleta_tendina != "Tutti":
+        c_c, c_n = sel_atleta_tendina.split(" ", 1)
+        atlete_g = [a for a in atlete_g if a.get("cognome") == c_c and a.get("nome") == c_n]
+    elif q_prom:
+        atlete_g = [a for a in atlete_g if q_prom.lower() in a.get("cognome", "").lower() or q_prom.lower() in a.get("nome", "").lower()]
                 
             if atlete_g:
                 df_g = pd.DataFrame(atlete_g)
