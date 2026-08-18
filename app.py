@@ -563,19 +563,19 @@ elif pagina_scelta == "Area Promozionale":
             st.write(f"**Visite Scadute ({len(atlete_scadute)}):**")
             c1, c2 = st.columns(2)
             with c1:
-                st.download_button("📥 Scarica SCADUTE (.csv)", df_scadute.to_csv(index=False), f"scadute_{g_nome}.csv", "text/csv")
+                with c1:
+                st.download_button("📥 Scarica SCADUTE (.csv)", df_scadute.to_csv(index=False), f"scadute_{g_nome}.csv", "text/csv", key=f"csv_scad_{g_nome}")
             with c2:
-                st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scadute), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scadute), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_scad_{g_nome}")
 
         if atlete_in_scadenza:
             df_in_scad = pd.DataFrame(atlete_in_scadenza)
             st.write(f"**In Scadenza nei prossimi 30gg ({len(atlete_in_scadenza)}):**")
             c3, c4 = st.columns(2)
             with c3:
-                st.download_button("📥 Scarica IN SCADENZA (.csv)", df_in_scad.to_csv(index=False), f"in_scadenza_{g_nome}.csv", "text/csv")
+                st.download_button("📥 Scarica IN SCADENZA (.csv)", df_in_scad.to_csv(index=False), f"in_scadenza_{g_nome}.csv", "text/csv", key=f"csv_prox_{g_nome}")
             with c4:
-                st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_in_scad), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-            col_rt1, col_rt2 = st.columns(2)
+                st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_in_scad), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_prox_{g_nome}")
             with col_rt1:
                 q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{i}")
             with col_rt2:
