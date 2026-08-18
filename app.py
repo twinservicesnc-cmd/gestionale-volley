@@ -584,11 +584,11 @@ elif pagina_scelta == "Area Promozionale":
         atlete_g = [a for a in atlete_g if a.get("cognome") == c_c and a.get("nome") == c_n]
     elif q_prom:
         atlete_g = [a for a in atlete_g if q_prom.lower() in a.get("cognome", "").lower() or q_prom.lower() in a.get("nome", "").lower()]
-                
-            if atlete_g:
-    df_g = pd.DataFrame(atlete_g)
-    col_vis = [c for c in ["cognome", "nome", "sesso", "scad_visa", "stato_visita", "tel1", "mail1"] if c in df_g.columns]
-    st.dataframe(df_g[col_vis].rename(columns=MAPPING_COLONNE), use_container_width=True)
+
+    if atlete_g:
+        df_g = pd.DataFrame(atlete_g)
+        col_vis = [c for c in ["cognome", "nome", "sesso", "scad_visa", "stato_visita", "tel1", "mail1"] if c in df_g.columns]
+        st.dataframe(df_g[col_vis].rename(columns=MAPPING_COLONNE), use_container_width=True)
                 
                 col_exp_p1, col_exp_p2 = st.columns(2)
                 with col_exp_p1:
