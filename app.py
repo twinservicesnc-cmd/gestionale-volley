@@ -557,30 +557,33 @@ elif pagina_scelta == "Area Promozionale":
                 df.to_excel(writer, index=False, sheet_name='Lista')
             return output.getvalue()
 
-        # Pulsanti e tabelle Visite Scadute
-    if atlete_scadute:
-        df_scadute = pd.DataFrame(atlete_scadute)
-        st.write(f"**Visite Scadute ({len(atlete_scadute)}):**")
-        c1, c2 = st.columns(2)
-        with c1:
-            st.download_button("📥 Scarica SCADUTE (.csv)", df_scadute.to_csv(index=False), f"scadute_{g_nome}.csv", "text/csv", key=f"csv_scad_{g_nome}")
-        with c2:
-            st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scadute), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_scad_{g_nome}")
-        st.dataframe(df_scadute, use_container_width=True)
+        # 1. Visite Scadute
+    st.write(f"**Visite Scadute ({len(atlete_scadute)}):**")
+    df_scad = pd.DataFrame(atlete_scadute)
+    c1, c2 = st.columns(2)
+    with c1:
+        st.download_button("📥 Scarica SCADUTE (.csv)", df_scad.to_csv(index=False), f"scadute_{g_nome}.csv", "text/csv", key=f"csv_scad_{g_nome}")
+    with c2:
+        st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scad), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_scad_{g_nome}")
+    st.dataframe(df_scad, use_container_width=True)
 
-    # Pulsanti e tabelle In Scadenza
-    if atlete_in_scadenza:
-        df_in_scad = pd.DataFrame(atlete_in_scadenza)
-        st.write(f"**In Scadenza nei prossimi 30gg ({len(atlete_in_scadenza)}):**")
-        c3, c4 = st.columns(2)
-        with c3:
-            st.download_button("📥 Scarica IN SCADENZA (.csv)", df_in_scad.to_csv(index=False), f"in_scadenza_{g_nome}.csv", "text/csv", key=f"csv_prox_{g_nome}")
-        with c4:
-            st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_in_scad), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_prox_{g_nome}")
-        st.dataframe(df_in_scad, use_container_width=True)
-        col_rt1, col_rt2 = st.columns(2)
-        
-        with col_rt1:
+    # 2. In Scadenza nei prossimi 30gg
+    st.write(f"**In Scadenza nei prossimi 30gg ({len(atlete_in_scadenza)}):**")
+    df_prox = pd.DataFrame(atlete_in_scadenza)
+    c3, c4 = st.columns(2)
+    with c3:
+        st.download_button("📥 Scarica IN SCADENZA (.csv)", df_prox.to_csv(index=False), f"in_scadenza_{g_nome}.csv", "text/csv", key=f"csv_prox_{g_nome}")
+    with c4:
+        st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_prox), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_prox_{g_nome}")
+    st.dataframe(df_prox, use_container_width=True)
+
+    # 3. Filtri di ricerca per nome o tendina
+    col_rt1, col_rt2 = st.columns(2)
+    with col_rt1:
+        q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{g_nome}")
+    with col_rt2:
+        nomi_atlete_g = ["Tutti"] + [f"{a['cognome']} {a['nome']}" for a in atlete_g]
+        sel_atleta_tendina = st.selectbox(f"Seleziona atleta a tendina ({g_nome}):", nomi_atlete_g, key=f"sel_tend_prom_{g_nome}")
             q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{g_nome}")
         with col_rt2:
             nomi_atlete_g = ["Tutti"] + [f"{a['cognome']} {a['nome']}" for a in atlete_g]
