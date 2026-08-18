@@ -544,11 +544,11 @@ elif pagina_scelta == "Area Promozionale":
             st.subheader(f"Roster Gruppo: {g_nome}")
            
                 
-            atlete_g = [a for a in atlete_stagione_attiva if a.get("cognome") != "--- Inizializzazione" and (a.get("gruppo", "").lower() == g_nome.lower() or a.get("gruppo2", "").lower() == g_nome.lower())]
-           # Filtriamo le atlete (stessa logica di prima)
-        oggi = datetime.now()
-        atlete_scadute = [a for a in atlete_g if str(a.get("scad_visita", "")).strip() and datetime.strptime(str(a.get("scad_visita", "")).strip(), "%d/%m/%Y") < oggi]
-        atlete_in_scadenza = [a for a in atlete_g if str(a.get("scad_visita", "")).strip() and 0 <= (datetime.strptime(str(a.get("scad_visita", "")).strip(), "%d/%m/%Y") - oggi).days <= 30]
+            atlete_g = [a for a in atleta_stagione_attiva if a.get("cognome") != "--- Inizializzazione" and (str(a.get("gruppo_squadra", "")).lower() == g_nome.lower() or str(a.get("gruppo", "")).lower() == g_nome.lower() or str(a.get("gruppo2", "")).lower() == g_nome.lower())]
+    
+    oggi = datetime.now().date()
+    atlete_scadute = [a for a in atlete_g if str(a.get("scad_visa", "")).strip() and datetime.strptime(str(a.get("scad_visa", "")).strip(), "%d/%m/%Y").date() < oggi]
+    atlete_in_scadenza = [a for a in atlete_g if str(a.get("scad_visa", "")).strip() and 0 <= (datetime.strptime(str(a.get("scad_visa", "")).strip(), "%d/%m/%Y").date() - oggi).days <= 30]
 
         # Creiamo un buffer per Excel
         def to_excel(df):
