@@ -574,7 +574,7 @@ elif pagina_scelta == "Area Promozionale":
             with c3:
                 st.download_button("📥 Scarica IN SCADENZA (.csv)", df_in_scad.to_csv(index=False), f"in_scadenza_{g_nome}.csv", "text/csv", key=f"csv_prox_{g_nome}")
             with c4:
-            st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_in_scad), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_prox_{g_nome}")
+				st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_in_scad), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_prox_{g_nome}")
 
         col_rt1, col_rt2 = st.columns(2)
         
@@ -583,7 +583,6 @@ elif pagina_scelta == "Area Promozionale":
         with col_rt2:
             nomi_atlete_g = ["Tutti"] + [f"{a['cognome']} {a['nome']}" for a in atlete_g]
             sel_atleta_tendina = st.selectbox(f"Seleziona atleta a tendina ({g_nome}):", nomi_atlete_g, key=f"sel_tend_prom_{g_nome}")
-            if sel_atleta_tendina != "Tutti":
                 c_c, c_n = sel_atleta_tendina.split(" ", 1)
                 atlete_g = [a for a in atlete_g if a.get("cognome") == c_c and a.get("nome") == c_n]
             elif q_prom:
