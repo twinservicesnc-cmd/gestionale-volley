@@ -805,7 +805,7 @@ elif pagina_scelta == "Anagrafiche e Rate":
                         with open(path_a, "wb") as f: f.write(file_altro_up.getbuffer())
                         
                     nuova_scheda = crea_scheda_standard({
-                        "cognome": cognome, "nome": nome, "sesso": sesso, "cf": cf, "data_nas": data_nas,
+                        "cognome": cognome, "nome": nome, "sesso": sesso, "Codice Fiscale": cf, "data_nas": data_nas,
                         "luogo_nas": luogo_nas, "prov_nas": prov_nas, "indirizzo_res": indirizzo_res, "citta_res": citta_res,
                         "prov_res": prov_res, "categoria": categoria, "gruppo": normalizza_nome_gruppo(gruppo), "gruppo2": normalizza_nome_gruppo(gruppo2) if gruppo2 != "Nessuno" else "",
                         "scad_visita": scad_visita, "allegato_visita": path_v, "allegato_privacy": path_p, "foto_atleta": path_f, "allegato_altro": path_a,
