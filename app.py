@@ -673,8 +673,8 @@ elif pagina_scelta == "Anagrafiche e Rate":
         st.write("Collega, sincronizza o consulta direttamente il foglio Google Sheets ufficiale.")
         if st.button("Avvia Sincronizzazione Cloud Master"):
             risultato_sync = sincronizza_dal_modulo(stagione_selezionata)
-            st.success(risultato_sync)
-			time.sleep(2)
+            st.success(risultato_sync) 	
+            time.sleep(2)
             st.rerun()
         
         st.markdown("---")
