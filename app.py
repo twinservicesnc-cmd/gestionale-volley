@@ -542,7 +542,10 @@ elif pagina_scelta == "Area Promozionale":
     for i, g_nome in enumerate(gruppi_prom):
         with tab_gp[i]:
             st.subheader(f"Roster Gruppo: {g_nome}")
-           # Filtriamo le atlete in base alla data della visita medica
+           
+                
+            atlete_g = [a for a in atlete_stagione_attiva if a.get("cognome") != "--- Inizializzazione" and (a.get("gruppo", "").lower() == g_nome.lower() or a.get("gruppo2", "").lower() == g_nome.lower())]
+            # Filtriamo le atlete in base alla data della visita medica
         oggi = datetime.now()
         atlete_scadute = []
         atlete_in_scadenza = []
@@ -580,18 +583,6 @@ elif pagina_scelta == "Area Promozionale":
                     mime="text/csv",
                     key=f"dl_prox_{i}"
                 )
-        with col_dl2:
-            if atlete_in_scadenza:
-                df_in_scad = pd.DataFrame(atlete_in_scadenza)
-                st.download_button(
-                    label=f"📥 Scarica IN SCADENZA ({g_nome})",
-                    data=df_in_scad.to_csv(index=False).encode('utf-8'),
-                    file_name=f"visite_in_scadenza_{g_nome}.csv",
-                    mime="text/csv",
-                    key=f"dl_prox_{i}"
-                )
-            atlete_g = [a for a in atlete_stagione_attiva if a.get("cognome") != "--- Inizializzazione" and (a.get("gruppo", "").lower() == g_nome.lower() or a.get("gruppo2", "").lower() == g_nome.lower())]
-            
             col_rt1, col_rt2 = st.columns(2)
             with col_rt1:
                 q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{i}")
