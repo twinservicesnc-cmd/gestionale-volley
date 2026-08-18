@@ -1,34 +1,14 @@
-import time
-import streamlit as st
-import json
-import os
-import shutil
-import pandas as pd
-import requests
-import io
-from datetime import datetime
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-
+# Carica i dati dal tuo Google Sheet
+df = carica_dati_da_sheet('Anagrafica Atleta MONVISO VOLLEY (Risposte)')
+st.success("Sincronizzazione effettuata con successo!")
 def genera_pdf_ricevuta(atleta, importo, societa):
-    buffer = io.BytesIO()
-    p = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-    
-    # Intestazione e Riferimenti Normativi
-    p.setFont("Helvetica-Bold", 13)
-    p.drawString(50, height - 40, "RICEVUTA DI PAGAMENTO")
-    p.setFont("Helvetica", 8)
-    p.drawString(50, height - 55, "Ai sensi e per gli effetti dell'art. 1, c. 319 L. n. 296 del 27.12.2006")
-    
     # Dati Società / Rappresentante
     testo_soc = (
         "Il sottoscritto Enrico Galleano, nato a Torino il 25 novembre 1977, in qualità "
         "di presidente e legale rappresentante della Pallavolo Pinerolo S.S.D A.R.L - "
         "cod. Fipav 010050225 - N. registrazione CONI 51944, con sede in Pinerolo (TO) "
         "viale Grande Torino, 2 - P. IVA/C.F. 06598960018"
-    )
-    
+    )    
     text_obj = p.beginText(50, height - 85)
     text_obj.setFont("Helvetica", 7.5)
     for line in [testo_soc[i:i+105] for i in range(0, len(testo_soc), 105)]:
@@ -542,53 +522,26 @@ elif pagina_scelta == "Area Promozionale":
     for i, g_nome in enumerate(gruppi_prom):
         with tab_gp[i]:
             st.subheader(f"Roster Gruppo: {g_nome}")
-           
+            
+            atlete_g = [a for a in atlete_stagione_attiva if a.get("cognome") != "--- Inizializzazione" and (a.get("gruppo", "").lower() == g_nome.lower() or a.get("gruppo2", "").lower() == g_nome.lower())]
+            
+            col_rt1, col_rt2 = st.columns(2)
+            with col_rt1:
+                q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{i}")
+            with col_rt2:
+                nomi_atlete_g = ["Tutti"] + [f"{a['cognome']} {a['nome']}" for a in atlete_g]
+                sel_atleta_tendina = st.selectbox(f"Seleziona atleta a tendina ({g_nome}):", nomi_atlete_g, key=f"sel_tend_prom_{i}")
+            
+            if sel_atleta_tendina != "Tutti":
+                c_c, c_n = sel_atleta_tendina.split(" ", 1)
+                atlete_g = [a for a in atlete_g if a.get("cognome") == c_c and a.get("nome") == c_n]
+            elif q_prom:
+                atlete_g = [a for a in atlete_g if q_prom.lower() in a.get("cognome","").lower() or q_prom.lower() in a.get("nome","").lower()]
                 
-           # 1. Filtro atlete del gruppo
-    atlete_g = [a for a in atleta_stagione_attiva if a.get("cognome") != "--- Inizializzazione" and (str(a.get("gruppo_squadra", "")).lower() == g_nome.lower() or str(a.get("gruppo", "")).lower() == g_nome.lower() or str(a.get("gruppo2", "")).lower() == g_nome.lower())]
-    
-    oggi = datetime.now().date()
-    atlete_scadute = [a for a in atlete_g if str(a.get("scad_visa", "")).strip() and datetime.strptime(str(a.get("scad_visa", "")).strip(), "%d/%m/%Y").date() < oggi]
-    atlete_in_scadenza = [a for a in atlete_g if str(a.get("scad_visa", "")).strip() and 0 <= (datetime.strptime(str(a.get("scad_visa", "")).strip(), "%d/%m/%Y").date() - oggi).days <= 30]
-
-    # 2. Visite Scadute
-    st.write(f"**Visite Scadute ({len(atlete_scadute)}):**")
-    df_scad = pd.DataFrame(atlete_scadute)
-    c1, c2 = st.columns(2)
-    with c1:
-        st.download_button("📥 Scarica SCADUTE (.csv)", df_scad.to_csv(index=False), f"scadute_{g_nome}.csv", "text/csv", key=f"csv_scad_{g_nome}")
-    with c2:
-        st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scad), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_scad_{g_nome}")
-    st.dataframe(df_scad, use_container_width=True)
-
-    # 3. In Scadenza nei prossimi 30gg
-    st.write(f"**In Scadenza nei prossimi 30gg ({len(atlete_in_scadenza)}):**")
-    df_prox = pd.DataFrame(atlete_in_scadenza)
-    c3, c4 = st.columns(2)
-    with c3:
-        st.download_button("📥 Scarica IN SCADENZA (.csv)", df_prox.to_csv(index=False), f"in_scadenza_{g_nome}.csv", "text/csv", key=f"csv_prox_{g_nome}")
-    with c4:
-        st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_prox), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_prox_{g_nome}")
-    st.dataframe(df_prox, use_container_width=True)
-
-    # 4. Filtri di ricerca
-    col_rt1, col_rt2 = st.columns(2)
-    with col_rt1:
-        q_prom = st.text_input(f"🔍 Cerca per nome in {g_nome}:", key=f"q_prom_{g_nome}")
-    with col_rt2:
-        nomi_atlete_g = ["Tutti"] + [f"{a['cognome']} {a['nome']}" for a in atlete_g]
-        sel_atleta_tendina = st.selectbox(f"Seleziona atleta a tendina ({g_nome}):", nomi_atlete_g, key=f"sel_tend_prom_{g_nome}")
-
-    if sel_atleta_tendina != "Tutti":
-        c_c, c_n = sel_atleta_tendina.split(" ", 1)
-        atlete_g = [a for a in atlete_g if a.get("cognome") == c_c and a.get("nome") == c_n]
-    elif q_prom:
-        atlete_g = [a for a in atlete_g if q_prom.lower() in a.get("cognome", "").lower() or q_prom.lower() in a.get("nome", "").lower()]
-
-    if atlete_g:
-        df_g = pd.DataFrame(atlete_g)
-        col_vis = [c for c in ["cognome", "nome", "sesso", "scad_visa", "stato_visita", "tel1", "mail1"] if c in df_g.columns]
-        st.dataframe(df_g[col_vis].rename(columns=MAPPING_COLONNE), use_container_width=True)
+            if atlete_g:
+                df_g = pd.DataFrame(atlete_g)
+                col_vis = [c for c in ["cognome", "nome", "sesso", "scad_visita", "stato_visita", "tel1", "mail1"] if c in df_g.columns]
+                st.dataframe(df_g[col_vis].rename(columns=MAPPING_COLONNE), use_container_width=True)
                 
                 col_exp_p1, col_exp_p2 = st.columns(2)
                 with col_exp_p1:
@@ -701,9 +654,11 @@ elif pagina_scelta == "Anagrafiche e Rate":
         st.write("Collega, sincronizza o consulta direttamente il foglio Google Sheets ufficiale.")
         if st.button("Avvia Sincronizzazione Cloud Master"):
             risultato_sync = sincronizza_dal_modulo(stagione_selezionata)
-            st.success(risultato_sync) 	
+            st.success(risultato_sync)
             time.sleep(2)
-            st.rerun()
+            st.rerun()  
+            
+    
         
         st.markdown("---")
         st.markdown("#### 📄 Visualizzazione in tempo reale del Foglio Google Master:")
