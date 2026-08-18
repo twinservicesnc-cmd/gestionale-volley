@@ -557,25 +557,27 @@ elif pagina_scelta == "Area Promozionale":
                 df.to_excel(writer, index=False, sheet_name='Lista')
             return output.getvalue()
 
-        # Pulsanti download (CSV + Excel)
-        if atlete_scadute:
-            df_scadute = pd.DataFrame(atlete_scadute)
-            st.write(f"**Visite Scadute ({len(atlete_scadute)}):**")
-            c1, c2 = st.columns(2)
-            with c1:
-                st.download_button("📥 Scarica SCADUTE (.csv)", df_scadute.to_csv(index=False), f"scadute_{g_nome}.csv", "text/csv", key=f"csv_scad_{g_nome}")
-            with c2:
-                st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scadute), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_scad_{g_nome}")
+        # Pulsanti e tabelle Visite Scadute
+    if atlete_scadute:
+        df_scadute = pd.DataFrame(atlete_scadute)
+        st.write(f"**Visite Scadute ({len(atlete_scadute)}):**")
+        c1, c2 = st.columns(2)
+        with c1:
+            st.download_button("📥 Scarica SCADUTE (.csv)", df_scadute.to_csv(index=False), f"scadute_{g_nome}.csv", "text/csv", key=f"csv_scad_{g_nome}")
+        with c2:
+            st.download_button("📥 Scarica SCADUTE (.xlsx)", to_excel(df_scadute), f"scadute_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_scad_{g_nome}")
+        st.dataframe(df_scadute, use_container_width=True)
 
-        if atlete_in_scadenza:
-            df_in_scad = pd.DataFrame(atlete_in_scadenza)
-            st.write(f"**In Scadenza nei prossimi 30gg ({len(atlete_in_scadenza)}):**")
-            c3, c4 = st.columns(2)
+    # Pulsanti e tabelle In Scadenza
+    if atlete_in_scadenza:
+        df_in_scad = pd.DataFrame(atlete_in_scadenza)
+        st.write(f"**In Scadenza nei prossimi 30gg ({len(atlete_in_scadenza)}):**")
+        c3, c4 = st.columns(2)
         with c3:
             st.download_button("📥 Scarica IN SCADENZA (.csv)", df_in_scad.to_csv(index=False), f"in_scadenza_{g_nome}.csv", "text/csv", key=f"csv_prox_{g_nome}")
         with c4:
             st.download_button("📥 Scarica IN SCADENZA (.xlsx)", to_excel(df_in_scad), f"in_scadenza_{g_nome}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_prox_{g_nome}")
-
+        st.dataframe(df_in_scad, use_container_width=True)
         col_rt1, col_rt2 = st.columns(2)
         
         with col_rt1:
